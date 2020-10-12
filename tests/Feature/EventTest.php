@@ -3,7 +3,10 @@
 namespace Tests\Feature;
 
 use App\Models\Event;
+use App\Models\Person;
 use Carbon\Carbon;
+use Database\Factories\EventFactory;
+use Illuminate\Support\Arr;
 use Tests\TestCase;
 
 class EventTest extends TestCase
@@ -22,21 +25,17 @@ class EventTest extends TestCase
             ->assertJsonCount(10);
     }
 
-    public function testCanCreateNewEvent()
+    public function testCanCreateEvent()
     {
-        $start = Carbon::now();
-        $response = $this->postJson(self::URI, [
-            'title' => 'Event Title',
-            'description' => 'A big text',
-            'start' => $start,
-            'end' => $start->addHour(),
-        ]);
+        $data = Event::factory()->make()->toArray();
+        $data['organizers'] = Person::factory(1)->create()->pluck('id');
+        $response = $this->postJson(self::URI, $data);
 
         $response->assertStatus(200)
             ->assertJson(['success' => true]);
     }
 
-    public function testCanReadOneEvent()
+    public function testCanReadEvent()
     {
         $event = Event::factory()->create();
         $response = $this->get(self::URI . '/' . $event->id);
@@ -47,19 +46,18 @@ class EventTest extends TestCase
 
     public function testCanUpdateEvent()
     {
-        $start = Carbon::now();
-        $response = $this->postJson(self::URI, [
-            'title' => 'Event Title',
-            'description' => 'A big text',
-            'start' => $start,
-            'end' => $start->addHour(),
-        ]);
+        $event = Event::factory()->create();
+
+        $data = Event::factory()->make()->toArray();
+        $data['organizers'] = Person::factory(2)->create()->pluck('id');
+
+        $response = $this->putJson(self::URI . '/' . $event->id, $data);
 
         $response->assertStatus(200)
             ->assertJson(['success' => true]);
     }
 
-    public function testCanDeleteOneEvent()
+    public function testCanDeleteEvent()
     {
         $event = Event::factory()->create();
         $response = $this->delete(self::URI . '/' . $event->id);

@@ -2,8 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\EventRequest;
+use App\Http\Resources\EventResource;
 use App\Models\Event;
-use Illuminate\Http\Request;
 
 class EventController extends Controller
 {
@@ -16,20 +17,20 @@ class EventController extends Controller
     {
         $events = Event::all();
 
-        return response()->json($events);
+        return response()->json(EventResource::collection($events));
     }
 
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param EventRequest $request
      * @return \Illuminate\Http\JsonResponse
      */
-    public function store(Request $request)
+    public function store(EventRequest $request)
     {
-        $event = Event::create($request->only('title', 'description', 'start', 'end'));
+        Event::create($request->validated());
 
-        return response()->json(['success' => true, 'id' => $event->id]);
+        return response()->json(['success' => true]);
     }
 
     /**
@@ -40,19 +41,21 @@ class EventController extends Controller
      */
     public function show(Event $event)
     {
-        return response()->json($event);
+        $event->load('organizers');
+
+        return response()->json(new EventResource($event));
     }
 
     /**
      * Update the specified resource in storage.
      *
-     * @param \Illuminate\Http\Request $request
+     * @param EventRequest $request
      * @param Event $event
      * @return \Illuminate\Http\JsonResponse
      */
-    public function update(Request $request, Event $event)
+    public function update(EventRequest $request, Event $event)
     {
-        $event->update($request->only('title', 'description', 'start', 'end'));
+        $event->update($request->validated());
 
         return response()->json(['success' => true]);
     }
