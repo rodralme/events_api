@@ -30,6 +30,8 @@ class EventTest extends TestCase
 
         $response->assertStatus(201)
             ->assertJson(['success' => true]);
+
+        self::assertTrue(Event::find($response->json('data')['id'])->organizers()->exists());
     }
 
     public function testCannotCreateEventWithInvalidOrganizers()
@@ -62,6 +64,9 @@ class EventTest extends TestCase
 
         $response->assertStatus(200)
             ->assertJson(['success' => true]);
+
+        $event->refresh();
+        self::assertTrue($event->organizers()->exists());
     }
 
     public function testCanDeleteEvent()

@@ -29,7 +29,7 @@ class EventRequest extends FormRequest
             'description' => 'nullable',
             'start' => 'required|date',
             'end' => 'required|date|after:start',
-            'organizers' => 'required',
+            'organizers' => 'required|array',
         ];
     }
 

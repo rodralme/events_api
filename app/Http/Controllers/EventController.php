@@ -28,9 +28,14 @@ class EventController extends Controller
      */
     public function store(EventRequest $request)
     {
-        Event::create($request->validated());
+        $data = collect($request->validated());
+        $event = Event::create($data->except('organizers')->all());
+        $event->organizers()->sync($data->get('organizers'));
 
-        return response()->json(['success' => true], 201);
+        return response()->json([
+            'success' => true,
+            'data' => new EventResource($event->load('organizers')),
+        ], 201);
     }
 
     /**
@@ -55,7 +60,10 @@ class EventController extends Controller
      */
     public function update(EventRequest $request, Event $event)
     {
-        $event->update($request->validated());
+        $validated = collect($request->validated());
+        $event->update($validated->except('organizers')->all());
+
+        $event->organizers()->sync($validated->get('organizers'));
 
         return response()->json(['success' => true]);
     }
