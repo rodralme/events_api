@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Models\Person;
 use Illuminate\Foundation\Http\FormRequest;
 
 class EventRequest extends FormRequest
@@ -30,5 +31,26 @@ class EventRequest extends FormRequest
             'end' => 'required|date|after:start',
             'organizers' => 'required',
         ];
+    }
+
+    /**
+     * Custom validations.
+     *
+     * @param  \Illuminate\Validation\Validator  $validator
+     * @return void
+     */
+    public function withValidator($validator)
+    {
+        $validator->after(function ($validator) {
+            if (!$this->areOrganizersValidPeople()) {
+                $validator->errors()->add('organizers', 'Organizers should be valid people!');
+            }
+        });
+    }
+
+    private function areOrganizersValidPeople()
+    {
+        return collect($this->get('organizers', []))
+            ->every(fn ($id) => Person::find($id));
     }
 }

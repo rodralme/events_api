@@ -32,6 +32,16 @@ class EventTest extends TestCase
             ->assertJson(['success' => true]);
     }
 
+    public function testCannotCreateEventWithInvalidOrganizers()
+    {
+        $data = Event::factory()->make()->toArray();
+        $data['organizers'] = [999];
+        $response = $this->postJson(self::URI, $data);
+
+        $response->assertStatus(422)
+            ->assertJsonValidationErrors(['organizers']);
+    }
+
     public function testCanReadEvent()
     {
         $event = Event::factory()->create();
@@ -59,10 +69,10 @@ class EventTest extends TestCase
         $event = Event::factory()->create();
         $response = $this->delete(self::URI . '/' . $event->id);
 
-        $event->refresh();
-        info($event);
-        self::assertTrue($event->trashed());
         $response->assertStatus(200)
             ->assertJson(['success' => true]);
+
+        $event->refresh();
+        self::assertTrue($event->trashed());
     }
 }
