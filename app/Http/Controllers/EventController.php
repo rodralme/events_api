@@ -30,7 +30,7 @@ class EventController extends Controller
     {
         Event::create($request->validated());
 
-        return response()->json(['success' => true]);
+        return response()->json(['success' => true], 201);
     }
 
     /**
@@ -68,6 +68,8 @@ class EventController extends Controller
      */
     public function destroy(Event $event)
     {
-        return response()->json(['success' => true]);
+        $deleted = $event->delete();
+
+        return response()->json(['success' => $deleted]);
     }
 }

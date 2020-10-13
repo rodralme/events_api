@@ -4,9 +4,6 @@ namespace Tests\Feature;
 
 use App\Models\Event;
 use App\Models\Person;
-use Carbon\Carbon;
-use Database\Factories\EventFactory;
-use Illuminate\Support\Arr;
 use Tests\TestCase;
 
 class EventTest extends TestCase
@@ -31,7 +28,7 @@ class EventTest extends TestCase
         $data['organizers'] = Person::factory(1)->create()->pluck('id');
         $response = $this->postJson(self::URI, $data);
 
-        $response->assertStatus(200)
+        $response->assertStatus(201)
             ->assertJson(['success' => true]);
     }
 
@@ -62,6 +59,9 @@ class EventTest extends TestCase
         $event = Event::factory()->create();
         $response = $this->delete(self::URI . '/' . $event->id);
 
+        $event->refresh();
+        info($event);
+        self::assertTrue($event->trashed());
         $response->assertStatus(200)
             ->assertJson(['success' => true]);
     }

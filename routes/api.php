@@ -18,4 +18,4 @@ use Illuminate\Support\Facades\Route;
 //    return $request->user();
 //});
 
-Route::resource('events', \App\Http\Controllers\EventController::class);
+Route::apiResource('events', \App\Http\Controllers\EventController::class);
